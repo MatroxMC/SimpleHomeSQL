@@ -21,11 +21,11 @@ class DatabaseAsync extends AsyncTask
         $this->call3 = $call3;
     }
 
-    public function onRun() {
+    public function onRun(): void {
         call_user_func($this->call1, $this, $this->call3);
     }
 
-    public function onCompletion(Server $server) {
-        call_user_func($this->call2, $this, $server, $this->call3);
+    public function onCompletion(): void {
+        call_user_func($this->call2, $this, Server::getInstance(), $this->call3);
     }
 }

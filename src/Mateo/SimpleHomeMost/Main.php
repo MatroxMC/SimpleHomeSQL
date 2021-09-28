@@ -8,7 +8,6 @@ use Mateo\SimpleHomeMost\commands\delhome;
 use Mateo\SimpleHomeMost\commands\home;
 use Mateo\SimpleHomeMost\commands\homelist;
 use Mateo\SimpleHomeMost\commands\sethome;
-use Mateo\SimpleHomeMost\events\PlayerListener;
 use Mateo\SimpleHomeMost\handlers\DataHandler;
 use pocketmine\plugin\PluginBase;
 use pocketmine\Server;
@@ -19,15 +18,14 @@ class Main extends PluginBase{
     private static Main $instance;
     private static DataHandler $datahandler;
 
-    public function onEnable()
+    protected function onEnable(): void
     {
        Main::$instance = $this;
        Main::setCommands();
        Main::setHandler();
-       Main::setListener();
     }
 
-    public function onDisable()
+    protected function onDisable(): void
     {
         Main::getDataHandler()->closeDatabase();
     }
@@ -45,12 +43,6 @@ class Main extends PluginBase{
     private static function setHandler()
     {
         Main::$datahandler = new DataHandler();
-    }
-
-    private static function setListener()
-    {
-        $map = Server::getInstance()->getPluginManager();
-        $map->registerEvents(new PlayerListener(), Main::getInstance());
     }
 
     private static function setCommands()

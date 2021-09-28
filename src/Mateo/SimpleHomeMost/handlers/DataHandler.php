@@ -5,10 +5,9 @@ namespace Mateo\SimpleHomeMost\handlers;
 use Mateo\SimpleHomeMost\Main;
 use Mateo\SimpleHomeMost\Tasks\DatabaseAsync;
 use Mateo\SimpleHomeMost\Tasks\TeleportTask;
-use pocketmine\level\Position;
 use pocketmine\Server;
 use pocketmine\utils\Config;
-use pocketmine\utils\UUID;
+use pocketmine\world\Position;
 
 class DataHandler
 {
@@ -64,13 +63,7 @@ class DataHandler
             $config->set("max_home", 5);
             $config->save();
         }
-
-        if (!$config->check())
-        {
-            Main::getInstance()->getLogger()->warning("Error in configuration file");
-        }else{
-            DataHandler::$config = $config->getAll();
-        }
+        DataHandler::$config = $config->getAll();
     }
 
     public function closeDatabase()
@@ -96,7 +89,7 @@ class DataHandler
     public function addHome(string $uuid, $name, Position $position)
     {
         $patch = self::getPatchDatabase();
-        $position_encoded = base64_encode(serialize(["vector3" => $position->asVector3(), "level" => $position->getLevel()->getFolderName()]));
+        $position_encoded = base64_encode(serialize(["vector3" => $position->asVector3(), "level" => $position->getWorld()->getFolderName()]));
         $max_home = self::$config["max_home"];
 
         $a = new DatabaseAsync(function (DatabaseAsync $databaseAsync) use ($patch, $uuid, $name, $position_encoded, $max_home){
@@ -240,10 +233,10 @@ class DataHandler
                 if (!$databaseAsync->getResult()["error"])
                 {
                     $decode = unserialize(base64_decode($databaseAsync->getResult()["data"]["home"]["home_vector"]));
-                    $level = $server->getLevelByName($decode["level"]);
+                    $level = $server->getWorldManager()->getWorldByName($decode["level"]);
 
-                    if (is_null($level)) $server->loadLevel($decode["level"]);
-                    if (!is_null($server->getLevelByName($decode["level"])))
+                    if (is_null($level)) $server->getWorldManager()->loadWorld($decode["level"]);
+                    if (!is_null($server->getWorldManager()->getWorldByName($decode["level"])))
                     {
                         Main::getInstance()->getScheduler()->scheduleRepeatingTask(new TeleportTask($uuid, DataHandler::$config["countdown_teleport"], new Position($decode["vector3"]->x, $decode["vector3"]->y, $decode["vector3"]->z, $level)), 20);
                     }
@@ -252,7 +245,6 @@ class DataHandler
                 }
             }
         });
-
         $this->sendAsync($a);
     }
 }

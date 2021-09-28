@@ -3,13 +3,12 @@
 namespace Mateo\SimpleHomeMost\commands;
 
 use Mateo\SimpleHomeMost\Main;
+use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
-use pocketmine\command\PluginCommand;
-use pocketmine\level\Position;
-use pocketmine\Player;
+use pocketmine\player\Player;
 use pocketmine\plugin\Plugin;
 
-class home extends PluginCommand
+class home extends Command
 {
     public function __construct(string $name, Plugin $owner)
     {
@@ -21,10 +20,13 @@ class home extends PluginCommand
     {
         if ($sender instanceof Player)
         {
-            if (!isset(Main::getDataHandler()->movements[$sender->getRawUniqueId()]))
+            if (!isset(Main::getDataHandler()->movements[$sender->getXuid()]))
             {
-                if (!isset($args[0])) return $sender->sendMessage("§c» Command usage: /home <home>");
-                Main::getDataHandler()->teleportHome($sender->getRawUniqueId(), $args[0]);
+                if (!isset($args[0])) {
+                    $sender->sendMessage("§c» Command usage: /home <home>");
+                    return;
+                }
+                Main::getDataHandler()->teleportHome($sender->getXuid(), $args[0]);
             }
         }
     }

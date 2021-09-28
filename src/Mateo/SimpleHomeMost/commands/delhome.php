@@ -3,13 +3,12 @@
 namespace Mateo\SimpleHomeMost\commands;
 
 use Mateo\SimpleHomeMost\Main;
+use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
-use pocketmine\command\PluginCommand;
-use pocketmine\level\Position;
-use pocketmine\Player;
+use pocketmine\player\Player;
 use pocketmine\plugin\Plugin;
 
-class delhome extends PluginCommand
+class delhome extends Command
 {
     public function __construct(string $name, Plugin $owner)
     {
@@ -21,8 +20,11 @@ class delhome extends PluginCommand
     {
         if ($sender instanceof Player)
         {
-            if (!isset($args[0])) return $sender->sendMessage("§c» Command usage: /delhome <home>");
-            Main::getDataHandler()->removeHome($sender->getRawUniqueId(), $args[0]);
+            if (!isset($args[0]))  {
+                $sender->sendMessage("§c» Command usage: /delhome <home>");
+                return;
+            }
+            Main::getDataHandler()->removeHome($sender->getXuid(), $args[0]);
         }
     }
 }
